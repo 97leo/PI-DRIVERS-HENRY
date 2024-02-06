@@ -4,59 +4,70 @@ const { Driver, Team } = require('../db');
 const { Op } = require('sequelize');
 
 const getDriverByName = async (name) => {
-  console.log('Entró en la función getDriverByName con el nombre:', name);
-
-  if (name) {
-    const { data } = await axios(`${URL}`);
-    console.log('Datos de la API:', data);
-
-    let filteredData = await data.filter(driver =>
-      driver.name.forename.toLowerCase().includes(name.toLowerCase()) ||
-      driver.name.surname.toLowerCase().includes(name.toLowerCase())
+try {
+ // if (name) {
+    const { data } = await axios(`${URL}?name.forenema`);
+  
+    let filteredData = data.filter(driver =>
+        driver.name.forename.toUpperCase().includes(name.toUpperCase()) //||
+        //driver.apellido.toLowerCase().includes(name.toLowerCase())
     );
-    console.log('Datos filtrados:', filteredData);
 
-    filteredData = filteredData.slice(0, 15);
-    console.log('Datos filtrados limitados a 15:', filteredData);
-
-    if (filteredData.length === 15) {
-      const driver = filteredData.map(data => (
+    const newArrays = filteredData.slice(0,15);
+     let driver = null;
+    if (newArrays.length <= 15 && newArrays.length > 0) {
+      driver = newArrays.map(data => (
         {
           nombre: data.name.forename,
           apellido: data.name.surname,
           descripción: data.description,
           nacionalidad: data.nationality,
           fechaDeNacimiento: data.dob,
-          imagen: data.image
+          imagen: data.image.url
         }
       ));
-      console.log('Conductores encontrados en la API:', driver);
-
-      return driver;
+        return driver;
     }
-  } else {
-    const dbDrivers = await Driver.findAll({
-      where: {
-        [Op.or]: [
-          {
-            'name.forename': {
-              [Op.iLike]: `%${name}%`,
-            },
+  //} else {
+    const arrDriversDB = await Driver.findAll( {where: {nombre: name}},{
+      include: {
+          model: Team,
+          attributes: ["nombre"],
+          through: {
+              attributes: []
           },
-          {
-            'name.surname': {
-              [Op.iLike]: `%${name}%`,
-            },
-          },
-        ],
-      },
-      include: Team,
-      limit: 15,
-    });
-    console.log('Conductores encontrados en la base de datos:', dbDrivers);
+      }
+  });
+  console.log(driver, arrDriversDB, 'Estoy aquí');
+  return [driver, arrDriversDB]
 
-    if (dbDrivers.length === 15) return dbDrivers;
-  }
+    //const dbDrivers = await Driver.findAll({
+     // where: {
+       // [Op.or]: [
+         // {
+           // 'nombre': {
+            //  [Op.iLike]: `%${name}%`, // iLike para hacer la búsqueda insensible a mayúsculas y minúsculas
+           // },
+         // },
+         // {
+           // 'apellido': {
+          //    [Op.iLike]: `%${name}%`,
+          //  },
+         // },
+       // ],
+    //  },
+     // include: Team,
+      //limit: 15,
+   // });
+
+    //if (dbDrivers.length > 0||dbDrivers.length === 15) return dbDrivers;
+  //}
+
+} catch (error) {
+  console.error("Error en getDriversByNameControllers:", error);
+  throw Error(error);
+};
 };
 
-module.exports = getDriverByName;
+
+module.exports = {getDriverByName};

@@ -22,7 +22,7 @@ const getDriverById = async (id) => {
       nacionalidad: data.nationality,
       fechaDeNacimiento: data.dob,
       teams: data.teams,
-      imagen: data.image
+      imagen: data.image.url
       ? data.image : conductorImg
     }
     return driver;

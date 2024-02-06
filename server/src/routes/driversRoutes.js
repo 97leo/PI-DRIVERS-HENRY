@@ -2,11 +2,16 @@ const { Router } = require("express");
 const driverRouter = Router();
 const getDriverById = require('../Controlers/getDriverById');
 const getDrivers = require('../Controlers/getDrivers');
-const getDriverByName = require('../Controlers/getDriverByName');
+const {getDriverByName} = require('../Controlers/getDriverByName');
 const postDriver = require('../Controlers/postDriver');
 
-driverRouter.get('/', async (_req, res) => {
+driverRouter.get('/', async (req, res) => {
+    const {name} = req.query;
 try {
+    if(name) {
+        const data = await getDriverByName(name);
+        return res.status(200).json(data);
+    } 
     const data = await getDrivers();
     if(!data) throw new Error("Not Found");
     return res.status(200).json(data);
@@ -28,16 +33,17 @@ driverRouter.get('/:id', async (req, res) => {
     }
 });
 
-driverRouter.get('/name', async (req, res) => {
-try {
-   const {name} = req.query;
-    const data = await getDriverByName(name);
-    if(!data || data.length === 0) throw new Error('No hay drivers con este name');
-    return res.status(200).json(data);
-} catch (error) {
-    return res.status(404).json({error:error.message});
-}
-});
+//driverRouter.get('/name', async (req, res) => {
+//try {
+ //  const {name} = req.query;
+  // console.log("este es el nombre que me llega por query:" , name);
+  //  const data = await getDriverByName(name);
+   // if(!data || data.length === 0) throw new Error('No hay drivers con este name');
+   // return res.status(200).json(data);
+//} catch (error) {
+ //   return res.status(404).json({error:error.message});
+//}
+//});
 
 driverRouter.post('/', async (req, res) => {
 try {
@@ -49,4 +55,5 @@ try {
     return res.status(404).send(error.message);
 }
 });
-module.exports = driverRouter;
+
+module.exports ={ driverRouter};
