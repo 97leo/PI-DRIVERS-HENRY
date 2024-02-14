@@ -16,6 +16,7 @@ const getDriverById = async (id) => {
  const {data} = await axios(`${URL}/${id}`);
  if(data && Object.keys(data).length > 0) {
     const driver = {
+      id: data.id,
       nombre: data.name.forename,
       apellido: data.name.surname,
       descripción: data.description,

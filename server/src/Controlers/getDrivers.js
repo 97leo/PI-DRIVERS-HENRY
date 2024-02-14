@@ -8,13 +8,14 @@ const getDrivers = async () => {
      
     if(drivers && drivers.length > 0) {
         const driversMap = await drivers.map(driver => ({
+            id: driver.id,
             nombre: driver.name.forename,
             apellido: driver.name.surname,
             descripción: driver.description,
             nacionalidad:driver.nationality,
             fechaDeNacimiento: driver.dob,
             teams: driver.teams,
-            imagen: driver.image
+            imagen: driver.image.url
            // ? driver.image : driverImg
             }));
             return driversMap
